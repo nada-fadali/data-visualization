@@ -18,11 +18,9 @@ public:
     string name;
     int value;
     Node* parent;
-    vector<Node*> children;
-    vector<Node*> link;
+    vector<Node> relation;
     Node();
     Node(string, int);
-    Node(string,int, Node*);
 };
 
 Node::Node(){ 
@@ -31,15 +29,25 @@ Node::Node(){
 Node::Node(string n , int v){
 	name = n;
 	value = v;
-}
-
-Node::Node(string n, int v, Node* p){
-	Node(n, v);
-	parent = p;
+	parent = NULL;
 }
 
 
-//=========> HashNode
+//==========> Graph
+class Graph
+{
+public:
+	Node root;
+	vector<Graph> subGraphs;
+	Graph();
+};
+
+Graph::Graph(){
+}
+
+//////////////////////////////
+//	Logic
+/////////////////////////////
 
 
 
@@ -102,6 +110,10 @@ void display(void)
 	glutSwapBuffers();
 }
 
+//////////////////////////////
+//	Globals
+//////////////////////////////
+Graph graph;
 
 //////////////////////////////
 //	MAIN
@@ -110,13 +122,16 @@ int main(int argc, char **argv)
 {
 	ifstream myfile ("inputs.txt");
 	if (myfile.is_open()){
-		string line;
 		bool firstLine = true;
-		Node root = Node();
+		vector<string> tobeParent;
+		graph = Graph();
+
+		string line;
 		while ( getline (myfile,line) ){
 			istringstream ss(line);
 			string sub;
 
+			// split at ":"
 			vector<string> subStrings;
 			while(getline(ss, sub, ':')){
 				subStrings.push_back(sub);
@@ -129,16 +144,17 @@ int main(int argc, char **argv)
 					exit(0);
 				}
 				else {
-					root.name = subStrings[0];
-					root.value = atoi(subStrings[1].c_str());
-					root.parent = NULL;
+					graph.root.name = subStrings[0];
+					graph.root.value = atoi(subStrings[1].c_str());
+					graph.root.parent = NULL;
+
+					tobeParent.push_back(graph.root.name);
 
 					firstLine = false;
 				}
 			}
 			// get other node that is not the root 
 			else {
-				
 			}
 		}
 		myfile.close();
