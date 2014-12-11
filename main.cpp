@@ -7,7 +7,6 @@
 
 using namespace std;
 
-
 ///////////////////////////////
 //	CLASSES
 ///////////////////////////////
@@ -46,9 +45,15 @@ Graph::Graph(){
 
 
 //////////////////////////////
+//	Globals
+//////////////////////////////
+Graph graph;
+float camx, camy, camz;
+
+
+//////////////////////////////
 //	Logic
 /////////////////////////////
-
 
 
 //////////////////////////////
@@ -70,17 +75,45 @@ void handleResize(int w, int h)
 
 }
 
-void renderStrokeFontString(float x, float y, float z, float sx, float sy, float sz, void *font, char *string) {
+void specKeyFun(int key, int x, int y)
+{
+	switch (key)
+	{
+		case GLUT_KEY_RIGHT:
+			camx += 0.1;
+			//cam.z += 0.1;
+			glutPostRedisplay();
+			break;
+		case GLUT_KEY_LEFT:
+			camx -= 0.1;
+			//cam.z += 0.1;
+			glutPostRedisplay();
+			break;
+		case GLUT_KEY_UP:
+			camy += 0.1;
+			glutPostRedisplay();
+			break;
+		case GLUT_KEY_DOWN:
+			camy -= 0.1;
+			glutPostRedisplay();
+			break;		
+		case GLUT_KEY_END:
+			exit(0);
+			break;
+		default: break;
+	}
+}
+
+void renderStrokeFontString(float x, float y, float z, float sx, float sy, float sz, char *string) {
 	char *c;
 	glPushMatrix();
-	glTranslatef(x, y, z);
-	glScalef(sx, sy, sz);
-	glRotatef(45, 0.0, 1.0, 0.0);
-	//glRotatef(-30, 1.0, 0.0, 0.0);
-	for (c = string; *c != '\0'; c++) {
-		glutStrokeCharacter(font, *c);
-	}
-
+		glScalef(sx, sy, sz);
+		glRotatef(45, 0.0, 1.0, 0.0);
+		glTranslatef(x, y, z);
+		//glRotatef(-30, 1.0, 0.0, 0.0);
+		for (c = string; *c != '\0'; c++) {
+			glutStrokeCharacter(GLUT_STROKE_ROMAN, *c);
+		}
 	glPopMatrix();
 }
 
@@ -113,21 +146,21 @@ void display(void)
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();	
-	gluLookAt(1.0, 1.0, 1.0,
+	gluLookAt(camx, camy, camz,
 				0.0, 0.0, 0.0,
 				0.0, 1.0, 0.0	);
 
 
-	// draw
+	// draw axis
 	drawAxis();
+
+	// for example
+	glColor3f(1.0,0.0,1.0);
+	glLineWidth(5.0);
+	renderStrokeFontString(0.0,0.0,-1.0, 0.0005,0.0005,0.0005, "N");
 
 	glutSwapBuffers();
 }
-
-//////////////////////////////
-//	Globals
-//////////////////////////////
-Graph graph;
 
 //////////////////////////////
 //	MAIN
@@ -205,16 +238,20 @@ int main(int argc, char **argv)
     	cout << endl;
     }
 
+    camx = 1.0;
+	camy = 0.0;
+	camz = 1.0;
+
     // start opengl
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
 	glutInitWindowSize(1000, 600);
 	glutInitWindowPosition(50,50);
-	//glutCreateWindow("Project");
+	glutCreateWindow("Project");
 	init();
 	glutDisplayFunc(display);	
 	glutReshapeFunc(handleResize);
-	// glutSpecialFunc(specKeyFun);
+	glutSpecialFunc(specKeyFun);
 	glutMainLoop();
 
 	return 0;            
