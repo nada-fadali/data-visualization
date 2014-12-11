@@ -70,6 +70,20 @@ void handleResize(int w, int h)
 
 }
 
+void renderStrokeFontString(float x, float y, float z, float sx, float sy, float sz, void *font, char *string) {
+	char *c;
+	glPushMatrix();
+	glTranslatef(x, y, z);
+	glScalef(sx, sy, sz);
+	glRotatef(45, 0.0, 1.0, 0.0);
+	//glRotatef(-30, 1.0, 0.0, 0.0);
+	for (c = string; *c != '\0'; c++) {
+		glutStrokeCharacter(font, *c);
+	}
+
+	glPopMatrix();
+}
+
 void drawAxis()
 {
 	// x-axis
