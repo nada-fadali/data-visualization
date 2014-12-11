@@ -17,8 +17,8 @@ class Node {
 public:
     string name;
     int value;
-    Node* parent;
-    vector<Node> relation;
+    string parent;	// parent name
+    vector<string> relation;
     Node();
     Node(string, int);
 };
@@ -29,7 +29,6 @@ Node::Node(){
 Node::Node(string n , int v){
 	name = n;
 	value = v;
-	parent = NULL;
 }
 
 
@@ -38,12 +37,13 @@ class Graph
 {
 public:
 	Node root;
-	vector<Graph> subGraphs;
+	vector<Node> nodeList;
 	Graph();
 };
 
 Graph::Graph(){
 }
+
 
 //////////////////////////////
 //	Logic
@@ -144,9 +144,7 @@ int main(int argc, char **argv)
 					exit(0);
 				}
 				else {
-					graph.root.name = subStrings[0];
-					graph.root.value = atoi(subStrings[1].c_str());
-					graph.root.parent = NULL;
+					graph.root = Node(subStrings[0], atoi(subStrings[1].c_str()));
 
 					tobeParent.push_back(graph.root.name);
 
@@ -155,12 +153,43 @@ int main(int argc, char **argv)
 			}
 			// get other node that is not the root 
 			else {
+				Node n = Node(subStrings[0], atoi(subStrings[1].c_str()));
+				if(subStrings.size() == 4){
+					n.relation.push_back(subStrings[2]);
+				}
+				if(subStrings.back().compare(".")==0 || subStrings.back().compare("{")==0){
+					n.parent = tobeParent.back();
+					graph.nodeList.push_back(n);
+				}
+
+				if(subStrings.back().compare("{")==0){
+					tobeParent.push_back(n.name);
+				} 
+				else if(subStrings.back().compare("}")==0){
+					if(tobeParent.empty()){
+						tobeParent.push_back(graph.root.name);
+					} 
+					else{
+						tobeParent.pop_back();	
+					}
+					
+				}
 			}
 		}
 		myfile.close();
     }
     else cout << "Unable to open file";
 
+    // DEBUGGING
+    cout << "name value parent relation"<<endl;
+    cout << graph.root.name << " " << graph.root.value << endl;
+    for (unsigned i = 0; i < graph.nodeList.size(); i++)
+    {
+    	cout << graph.nodeList[i].name << " " << graph.nodeList[i].value << " " << graph.nodeList[i].parent << " ";
+    	if(!graph.nodeList[i].relation.empty())
+    		cout << graph.nodeList[i].relation[0];
+    	cout << endl;
+    }
 
     // start opengl
 	glutInit(&argc, argv);
