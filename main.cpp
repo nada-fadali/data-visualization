@@ -2,6 +2,7 @@
 #include <fstream>		// read txt file
 #include <string>		// string
 #include <iostream>		// cout
+#include <sstream>		// istringstream
 #include <vector>		// vector
 
 using namespace std;
@@ -16,61 +17,30 @@ class Node {
 public:
     string name;
     int value;
-    Node* Parent;
+    Node* parent;
     vector<Node*> children;
+    vector<Node*> link;
     Node();
-    Node(string,int,vector<Node*>);
-
+    Node(string, int);
+    Node(string,int, Node*);
 };
 
-Node::Node(){
-    name = "";
-    value = 0;  
+Node::Node(){ 
 }
 
-Node::Node(string n , int v, vector<Node*> c) {
-    name = n;
-    value = v;
-    children = c;
+Node::Node(string n , int v){
+	name = n;
+	value = v;
 }
+
+Node::Node(string n, int v, Node* p){
+	Node(n, v);
+	parent = p;
+}
+
 
 //=========> HashNode
-class HashNode { 
-public:
-    Node key;
-    Node value;
-    HashNode(Node,Node);
-    HashNode();  
-};
 
-HashNode::HashNode(){ 
-}
-
-HashNode::HashNode(Node k, Node v) {
-    key = k;
-    value = v;
-}
-
-//=========> Graph
-class Graph {
-public:
-    Node R1;
-    Node R2;
-    Node parentR1;
-    Node parentR2;
-    HashNode relationtable;
-    Graph();
-    Graph(Node,Node,HashNode);
-};
-
-Graph::Graph(){
-}
-
-Graph::Graph(Node k, Node v , HashNode rt){
-    R1 = k;
-    R2 = v;
-    relationtable = rt;
-}
 
 
 //////////////////////////////
@@ -141,45 +111,35 @@ int main(int argc, char **argv)
 	ifstream myfile ("inputs.txt");
 	if (myfile.is_open()){
 		string line;
+		bool firstLine = true;
+		Node root = Node();
 		while ( getline (myfile,line) ){
-			//split by ":" 
-			vector <string> lineAttr;
-			vector <string> roots;
-			vector <Node> children;
-			Node child;
-			//vector <Node> relations;
-  
-			int counter;
+			istringstream ss(line);
+			string sub;
 
-	  		split( lineAttr, line, is_any_of( ":" ) );
-			while (!EOF){
-		  		for (int i=0 ; i< lineAttr.size(); i++){
-			
-					if (lineAttr[2]== "{") {
-					//roots[counter] = lineAttr[0];
-					counter++;
-					roots.push_back(lineAttr[0]);
-					//child(lineAttr[0],lineAttr[1],NULL) .. this should be for the next line .. needs some modifications
-					children.push_back(child);
-					Node node(lineAttr(0),lineAttr(1), children);
-				} 
-				else (lineAttr[2]== "."){
-					Node node(lineAttr(0),lineAttr(1), null);
-				}
-			
-				//else { //node
-					//create relation
-					//relations.push_back(lineAttr[2]);
-				//	Node node (lineAttr(0),lineAttr(1), null);
-				//}
+			vector<string> subStrings;
+			while(getline(ss, sub, ':')){
+				subStrings.push_back(sub);
+			}
 
-				if (lineAttr[0] == "}"){
-					counter--;
-					// create instance 
-			
-					roots.pop_back();
+			// get the root node
+			if(firstLine){
+				if (subStrings.size() > 3) {
+					cout << "Error in input data at line 0" << endl;
+					exit(0);
 				}
-		  	}	
+				else {
+					root.name = subStrings[0];
+					root.value = atoi(subStrings[1].c_str());
+					root.parent = NULL;
+
+					firstLine = false;
+				}
+			}
+			// get other node that is not the root 
+			else {
+				
+			}
 		}
 		myfile.close();
     }
@@ -191,7 +151,7 @@ int main(int argc, char **argv)
 	glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
 	glutInitWindowSize(1000, 600);
 	glutInitWindowPosition(50,50);
-	glutCreateWindow("Project");
+	//glutCreateWindow("Project");
 	init();
 	glutDisplayFunc(display);	
 	glutReshapeFunc(handleResize);
