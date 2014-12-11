@@ -9,8 +9,12 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <fstream>
+#include <boost/algorithm/string.hpp>
+#include <vector>
 
 using namespace std;
+using namespace boost;
 
 class Node {
 
@@ -49,12 +53,61 @@ Node::Node(string n , int v,vector<Node*> r, vector<Node*> c) {
 
 
 
-
-
-
-
 int main(int argc, const char * argv[]) {
     // insert code here...
-    std::cout << "Hello, World!\n";
+  //read line by line from file
+	string line;
+  ifstream myfile ("inputs.txt");
+  if (myfile.is_open())
+  {
+    while ( getline (myfile,line) )
+    {
+
+		//split by ":" 
+ 
+	vector <string> lineAttr;
+	vector <string> roots;
+	vector <Node> children;
+	vector <Node> relations;
+  
+	int counter;
+
+	  split( lineAttr, line, is_any_of( ":" ) );
+		while (!EOF){
+		  for (int i=0 ; i< lineAttr.size(); i++){
+			
+			if (lineAttr[2]== "{") {
+				//roots[counter] = lineAttr[0];
+				counter++;
+				roots.push_back(lineAttr[0]);
+				Node node(lineAttr(0),lineAttr(1), children, relations);
+			} 
+			else if (lineAttr[2]== "."){
+				Node node(lineAttr(0),lineAttr(1), null, null);
+			}
+			
+			else { //node
+
+				//create relation
+				relations.push_back(lineAttr[2]);
+				Node node (lineAttr(0),lineAttr(1), null, relations);
+			}
+
+		if (lineAttr[0] == "}"){
+			counter--;
+			roots.pop_back(); 
+		}
+	
+		  }
+
+		}
+ 
+
+
+    }
+    myfile.close();
+  }
+
+  else cout << "Unable to open file"; 
     return 0;
 }
