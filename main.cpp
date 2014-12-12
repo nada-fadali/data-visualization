@@ -90,16 +90,13 @@ vector<string> Graph::getNodesInLevel(int level){
 }
 
 void Graph::setNodeLocation(string name, float x, float y, float z){
-	//cout << "x: " << x << " y: " << y << " z: " << z <<endl;
 	if(name.compare(root.name) == 0){
 		root.position = Point(x, y, z);
-		//cout << root.name  << " " <<  root.position.x <<  " " << root.position.y << " " << root.position.z << endl; 
 	}
 	else{
 		for (unsigned i = 0; i < nodeList.size(); i++){
 			if(nodeList[i].name.compare(name) == 0){
-				nodeList[i].position = Point(x, y, z);
-				//cout << nodeList[i].name << " " << nodeList[i].position.x << " " << nodeList[i].position.y << " " << nodeList[i].position.z << endl;			
+				nodeList[i].position = Point(x, y, z);		
 			}
 		}
 	}
@@ -266,9 +263,7 @@ void display(void)
 				&levelNodes[j][0]
 			);
 			sign *= -1;
-			// cout << levelNodes[j] << "  "; // debugging
 		}
-		// cout << endl; //debugging
 	}
 
 	// draw edges between nodes
@@ -286,28 +281,13 @@ void display(void)
 	}
 	glPopMatrix();
 
-
-	// cout << graph.root.name << " " << graph.root.position.x << " " << graph.root.position.y << " " << graph.root.position.z << endl;
-	// for (unsigned k = 0; k < graph.nodeList.size(); k++){
-	// 	cout << graph.nodeList[k].name << " " << graph.nodeList[k].position.x << " " << graph.nodeList[k].position.y << " " << graph.nodeList[k].position.z << endl;
+	// DEBUG
+	// for (unsigned l = 0; l < graph.nodeList.size(); l++)
+	// {
+	// 	Point p = graph.getNodePosition(graph.nodeList[l].parent);
+	// 	cout << "parent " << graph.nodeList[l].parent << " " << p.x << " " << p.y << " " << p.z << endl;
+	// 	cout << "node " << graph.nodeList[l].name << " " << graph.nodeList[l].position.x << " " << graph.nodeList[l].position.y << " " << graph.nodeList[l].position.z << endl << endl;
 	// }
-
-	
-
-	for (unsigned l = 0; l < graph.nodeList.size(); l++)
-	{
-		Point p = graph.getNodePosition(graph.nodeList[l].parent);
-		cout << "parent " << graph.nodeList[l].parent << " " << p.x << " " << p.y << " " << p.z << endl;
-		cout << "node " << graph.nodeList[l].name << " " << graph.nodeList[l].position.x << " " << graph.nodeList[l].position.y << " " << graph.nodeList[l].position.z << endl << endl;
-	}
-
-	// glLineWidth(2.0);
-	// glBegin(GL_LINES);
-	// 	glColor3f(0.5, 0.5, 0.0);
-	// 	glVertex3f(p.x, p.y, p.z);
-	// 	glVertex3f(graph.nodeList[0].position.x, graph.nodeList[0].position.y, graph.nodeList[0].position.z);
-	// glEnd();
-
 
 	glutSwapBuffers();
 }
@@ -396,14 +376,6 @@ int main(int argc, char **argv)
     	cout << endl;
     }
     cout << "levels: " << graph.getNumberOfLevels() << endl;
-
-    // 	    cout << endl;
-    // cout << "Positions" << endl;
-    // printf("%s %f %f %f\n", graph.root.name.c_str(), graph.root.position.x, graph.root.position.y, graph.root.position.z);
-    // for (unsigned i = 0; i < graph.nodeList.size(); i++)
-    // {
-    // 	printf("%s %f %f %f\n", graph.nodeList[i].name.c_str(), graph.nodeList[i].position.x, graph.nodeList[i].position.y,  graph.nodeList[i].position.z );
-    // }
     //<---->
 
     int levels = graph.getNumberOfLevels();
