@@ -178,7 +178,7 @@ void renderStrokeFontString(float x, float y, float z, float sx, float sy, float
 		glRotatef(45, 0.0, 1.0, 0.0);
 		glTranslatef(x, y, z);
 		glScalef(sx, sy, sz);
-		//glRotatef(-30, 1.0, 0.0, 0.0);
+		glRotatef(90, 0.0, 1.0, 0.0);
 		for (c = string; *c != '\0'; c++) {
 			glutStrokeCharacter(GLUT_STROKE_ROMAN, *c);
 		}
@@ -231,8 +231,9 @@ void display(void)
 				0.0, 1.0, 0.0	);
 
 
+	glLineWidth(1.0);
 	// draw axis
-	//drawAxis();
+	drawAxis();
 
 	// draw each level
 	int levels = graph.getNumberOfLevels();
@@ -251,24 +252,58 @@ void display(void)
 		// get nodes in this level
 		vector<string> levelNodes = graph.getNodesInLevel(i);
 		// draw nodes
-		glPushMatrix();
+		float sign = 0.1;
 		for (unsigned j = 0; j < levelNodes.size(); j++){
 			glColor3f(1.0,0.0,1.0);
-			graph.setNodeLocation(levelNodes[j], j*0.3, -factor+0.5, 0);
+			graph.setNodeLocation(levelNodes[j], j*0.1, -factor+0.5, j*sign);
 			renderStrokeFontString(
-				j*0.3,
+				j*0.1,
 			    -factor+0.5,
-				0,
+				j*sign,
 				0.0008,0.0008,0.0008, 
 				&levelNodes[j][0]
 			);
-
+			sign *= -1;
 			// cout << levelNodes[j] << "  "; // debugging
 		}
 		// cout << endl; //debugging
-		glPopMatrix();
 	}
 
+	// draw edges between nodes
+	// glLineWidth(2.0);
+	// glPushMatrix();
+	// glRotatef(45.0,0.0,1.0,0.0);
+	// glColor3f(0.5, 0.5, 0.0);
+	// for (unsigned w = 0; w < graph.nodeList.size(); w++){
+	// 	Point p = graph.getNodePosition(graph.nodeList[w].parent);
+	// 	glBegin(GL_LINES);
+	// 		glVertex3f(p.x, p.y-0.2, p.z);
+	// 		glVertex3f(graph.nodeList[w].position.x, graph.nodeList[w].position.y, graph.nodeList[w].position.z);
+	// 	glEnd();
+	// }
+	// glPopMatrix();
+
+
+	// cout << graph.root.name << " " << graph.root.position.x << " " << graph.root.position.y << " " << graph.root.position.z << endl;
+	// for (unsigned k = 0; k < graph.nodeList.size(); k++){
+	// 	cout << graph.nodeList[k].name << " " << graph.nodeList[k].position.x << " " << graph.nodeList[k].position.y << " " << graph.nodeList[k].position.z << endl;
+	// }
+
+	
+
+	for (unsigned l = 0; l < graph.nodeList.size(); l++)
+	{
+		Point p = graph.getNodePosition(graph.nodeList[l].parent);
+		cout << "parent " << graph.nodeList[l].parent << " " << p.x << " " << p.y << " " << p.z << endl;
+		cout << "node " << graph.nodeList[l].name << " " << graph.nodeList[l].position.x << " " << graph.nodeList[l].position.y << " " << graph.nodeList[l].position.z << endl << endl;
+	}
+
+	// glLineWidth(2.0);
+	// glBegin(GL_LINES);
+	// 	glColor3f(0.5, 0.5, 0.0);
+	// 	glVertex3f(p.x, p.y, p.z);
+	// 	glVertex3f(graph.nodeList[0].position.x, graph.nodeList[0].position.y, graph.nodeList[0].position.z);
+	// glEnd();
 
 
 	glutSwapBuffers();
@@ -369,9 +404,9 @@ int main(int argc, char **argv)
     //<---->
 
     int levels = graph.getNumberOfLevels();
-    cam.x = levels;
-	cam.y = 0;
-	cam.z = levels+0.5;
+    cam.x = levels+0.3;
+	cam.y = 0.3;
+	cam.z = -1*(levels);
 
     // start opengl
 	glutInit(&argc, argv);
