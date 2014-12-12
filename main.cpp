@@ -56,9 +56,29 @@ public:
 	Node root;
 	vector<Node> nodeList;
 	Graph();
+	int getNumberOfLevels();
+	vector<Node> getNodesInLevel(int);
 };
 
 Graph::Graph(){
+}
+
+int Graph::getNumberOfLevels(){
+	int max = 0;
+	for (unsigned i = 0; i < nodeList.size(); i++){
+		if(nodeList[i].level > max)
+			max = nodeList[i].level;
+	}
+	return max;
+}
+
+vector<Node> Graph::getNodesInLevel(int level){
+	vector<Node> result;
+	for (unsigned i = 0; i < nodeList.size(); i++){
+		if(nodeList[i].level == level)
+			result.push_back(nodeList[i]);
+	}
+	return result;
 }
 
 
@@ -67,11 +87,6 @@ Graph::Graph(){
 //////////////////////////////
 Graph graph;
 Point cam;
-
-
-//////////////////////////////
-//	Logic
-/////////////////////////////
 
 
 //////////////////////////////
@@ -184,6 +199,42 @@ void display(void)
 	drawAxis();
 
 	// draw level
+	int levels = graph.getNumberOfLevels();
+	for (int i = 0; i < levels; i++){
+		float factor = (i*1.0 / levels*1.0);
+
+		// draw base plane
+		glPushMatrix();
+			glColor3f(0.8,0.8,0.0);
+			glTranslatef(0, factor, 0);
+			glScalef(factor+0.5, factor+0.5, factor+0.5);
+			drawLevelPlane();
+		glPopMatrix();
+
+		// get nodes in this level
+		vector<Node> levelNodes = graph.getNodesInLevel(i);
+		// draw nodes
+		for (unsigned i = 0; i < levelNodes.size(); i++){
+			glPushMatrix();
+			levelNodes[i].position.x = -(factor * i * 1.0)-(i*i*i);
+			levelNodes[i].position.y = factor*levels;
+			levelNodes[i].position.z = -(factor * i * 1.0)-(i*i*i);
+			glColor3f(1.0, 1.0, 0.0);
+			renderStrokeFontString(
+				levelNodes[i].position.x,
+				levelNodes[i].position.y,
+				levelNodes[i].position.z,
+				0.0005, 0.0005, 0.00005, 
+				&levelNodes[i].name[0]
+			);
+			glPopMatrix();
+		}
+
+		//TODO draw links between children and parents
+
+		//TODO draw relations
+	}
+
 	// glPushMatrix();
 	// glScalef(0.5,0.5,0.5);
 	// glColor3f(0.5,0.5,0.0);
@@ -202,7 +253,8 @@ void display(void)
 //	MAIN
 //////////////////////////////
 int main(int argc, char **argv)
-{
+{	
+	// process input
 	ifstream myfile ("inputs.txt");
 	if (myfile.is_open()){
 		bool firstLine = true;
@@ -268,10 +320,11 @@ int main(int argc, char **argv)
     }
     else cout << "Unable to open file";
 
+    //TODO delete this
     // DEBUGGING
     //<---->
     cout << "name value parent level relation"<<endl;
-    cout << graph.root.name << " " << graph.root.value  << " " << graph.root.level << endl;
+    cout << graph.root.name << " " << graph.root.value  << "  " << graph.root.level << endl;
     for (unsigned i = 0; i < graph.nodeList.size(); i++)
     {
     	cout << graph.nodeList[i].name << " " << graph.nodeList[i].value << " " << graph.nodeList[i].parent << " " << graph.nodeList[i].level << " " ;
@@ -279,18 +332,20 @@ int main(int argc, char **argv)
     		cout << graph.nodeList[i].relation[0];
     	cout << endl;
     }
+    cout << "levels: " << graph.getNumberOfLevels() << endl;
     //<---->
 
-    cam.x = 1.0;
-	cam.y = 0.0;
-	cam.z = 1.0;
+    int levels = graph.getNumberOfLevels();
+    cam.x = levels - 0.7;
+	cam.y = levels - 0.7;
+	cam.z = levels - 0.7;
 
     // start opengl
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
 	glutInitWindowSize(1000, 600);
 	glutInitWindowPosition(50,50);
-	//glutCreateWindow("Project");
+	glutCreateWindow("Project");
 	init();
 	glutDisplayFunc(display);	
 	glutReshapeFunc(handleResize);
