@@ -411,21 +411,6 @@ int main(int argc, char **argv)
     }
     else cout << "Unable to open file";
 
-    //TODO delete this
-    // DEBUGGING
-    //<---->
-    cout << "name value parent level relation"<<endl;
-    cout << graph.root.name << " " << graph.root.value  << "  " << graph.root.level << endl;
-    for (unsigned i = 0; i < graph.nodeList.size(); i++)
-    {
-    	cout << graph.nodeList[i].name << " " << graph.nodeList[i].value << " " << graph.nodeList[i].parent << " " << graph.nodeList[i].level << " " ;
-    	if(!graph.nodeList[i].relation.empty())
-    		cout << graph.nodeList[i].relation[0];
-    	cout << endl;
-    }
-    cout << "levels: " << graph.getNumberOfLevels() << endl;
-    //<---->
-
     int levels = graph.getNumberOfLevels();
     cam.x = 1.0;
 	cam.y = 1.0;
