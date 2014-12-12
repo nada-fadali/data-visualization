@@ -61,6 +61,7 @@ public:
 	vector<string> getNodesInLevel(int);
 	void setNodeLocation(string, float, float, float);
 	Point getNodePosition(string);
+	string getParent(string);
 };
 
 Graph::Graph(){
@@ -115,6 +116,17 @@ Point Graph::getNodePosition(string nodeName){
 	return p;
 }
 
+string Graph::getParent(string node){
+	if(root.name.compare(node)==0)
+		return "root";
+	else{
+		for(unsigned i = 0; i < nodeList.size(); i++){
+			if(nodeList[i].name.compare(node)==0)
+				return nodeList[i].parent;
+		}
+	}
+	return "error";
+}
 
 //////////////////////////////
 //	Globals
@@ -173,6 +185,7 @@ void specKeyFun(int key, int x, int y)
 
 void renderStrokeFontString(float x, float y, float z, float sx, float sy, float sz, char *string) {
 	char *c;
+	glLineWidth(3.0);
 	glPushMatrix();
 		glRotatef(45, 0.0, 1.0, 0.0);
 		glTranslatef(x, y, z);
@@ -182,6 +195,7 @@ void renderStrokeFontString(float x, float y, float z, float sx, float sy, float
 			glutStrokeCharacter(GLUT_STROKE_ROMAN, *c);
 		}
 	glPopMatrix();
+	glLineWidth(1.0);
 }
 
 void drawLevelPlane()
@@ -242,7 +256,7 @@ void display(void)
 
 		// draw base plane
 		glPushMatrix();
-			glColor3f(0.2,0.0,0.2);
+			glColor3f(0.1,0.0,0.3);
 			glTranslatef(0, -factor, 0);
 			glScalef(factor+0.5, factor+0.5, factor+0.5);
 			drawLevelPlane();
@@ -281,13 +295,47 @@ void display(void)
 	}
 	glPopMatrix();
 
-	// DEBUG
-	// for (unsigned l = 0; l < graph.nodeList.size(); l++)
-	// {
-	// 	Point p = graph.getNodePosition(graph.nodeList[l].parent);
-	// 	cout << "parent " << graph.nodeList[l].parent << " " << p.x << " " << p.y << " " << p.z << endl;
-	// 	cout << "node " << graph.nodeList[l].name << " " << graph.nodeList[l].position.x << " " << graph.nodeList[l].position.y << " " << graph.nodeList[l].position.z << endl << endl;
-	// }
+	// draw relations between nodes and their parents
+	glColor3f(0.8, 0.8, 0.8);
+	for (unsigned z = 0; z < graph.nodeList.size(); z++){
+		if(!graph.nodeList[z].relation.empty()){
+			Point p1 = graph.nodeList[z].position;
+			for(unsigned q = 0; q < graph.nodeList[z].relation.size(); q++){
+				Point p2 = graph.getNodePosition(graph.nodeList[z].relation[q]);
+
+				glPushMatrix();
+				glRotatef(45.0,0.0,1.0,0.0);
+				glTranslatef(0.0, 0.0, 0.0);
+				glBegin(GL_LINES);
+					glVertex3f(p1.x, p1.y, p1.z);
+					glVertex3f(p2.x, p2.y, p2.z);
+				glEnd();
+				glPopMatrix();
+
+				// draw relation between parents
+				string parent1 = graph.nodeList[z].parent;
+				string parent2 = graph.getParent(graph.nodeList[z].relation[q]);
+				while(parent1.compare(parent2) != 0){
+
+					Point pp1 = graph.getNodePosition(parent1);
+					Point pp2 = graph.getNodePosition(parent2);
+
+					glPushMatrix();
+					glRotatef(45.0,0.0,1.0,0.0);
+					glTranslatef(0.0, 0.0, 0.0);
+					glBegin(GL_LINES);
+						glVertex3f(pp1.x, pp1.y, pp1.z);
+						glVertex3f(pp2.x, pp2.y, pp2.z);
+					glEnd();
+					glPopMatrix();
+
+
+					parent1 = graph.getParent(parent1);
+					parent2 = graph.getParent(parent2);
+				}
+			}
+		}
+	}
 
 	glutSwapBuffers();
 }
@@ -379,8 +427,8 @@ int main(int argc, char **argv)
     //<---->
 
     int levels = graph.getNumberOfLevels();
-    cam.x = levels+0.3;
-	cam.y = 0.3;
+    cam.x = 1.0;
+	cam.y = 1.0;
 	cam.z = -1*(levels);
 
     // start opengl
