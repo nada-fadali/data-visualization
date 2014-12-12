@@ -11,6 +11,22 @@ using namespace std;
 //	CLASSES
 ///////////////////////////////
 
+//=========> Point
+class Point
+{
+public:
+	float x, y, z;
+	Point();
+	Point(float, float, float);
+};
+
+Point::Point(){}
+
+Point::Point(float xin, float yin, float zin)
+{
+	x = xin; y = yin; z = zin;
+}
+
 //=========> Node
 class Node {
 public:
@@ -18,6 +34,7 @@ public:
     int value;
     string parent;	// parent name
     vector<string> relation;
+    Point position;
     Node();
     Node(string, int);
 };
@@ -48,7 +65,7 @@ Graph::Graph(){
 //	Globals
 //////////////////////////////
 Graph graph;
-float camx, camy, camz;
+Point cam;
 
 
 //////////////////////////////
@@ -80,21 +97,21 @@ void specKeyFun(int key, int x, int y)
 	switch (key)
 	{
 		case GLUT_KEY_RIGHT:
-			camx += 0.1;
+			cam.x += 0.1;
 			//cam.z += 0.1;
 			glutPostRedisplay();
 			break;
 		case GLUT_KEY_LEFT:
-			camx -= 0.1;
+			cam.x -= 0.1;
 			//cam.z += 0.1;
 			glutPostRedisplay();
 			break;
 		case GLUT_KEY_UP:
-			camy += 0.1;
+			cam.y += 0.1;
 			glutPostRedisplay();
 			break;
 		case GLUT_KEY_DOWN:
-			camy -= 0.1;
+			cam.y -= 0.1;
 			glutPostRedisplay();
 			break;		
 		case GLUT_KEY_END:
@@ -117,23 +134,34 @@ void renderStrokeFontString(float x, float y, float z, float sx, float sy, float
 	glPopMatrix();
 }
 
+void drawLevelPlane()
+{
+	glBegin(GL_LINE_STRIP);
+	glVertex3f(-0.5,0.5,-0.5);
+	glVertex3f(0.5,0.5,-0.5);
+	glVertex3f(0.5,0.5,0.5);
+	glVertex3f(-0.5,0.5,0.5);
+	glVertex3f(-0.5,0.5,-0.5);
+	glEnd();
+}
+
 void drawAxis()
 {
 	// x-axis
 	glBegin(GL_LINES);
-		glColor3f(1.0,0.0,0.0);
+		glColor3f(0.2,0.0,0.0);
 		glVertex3f(1.0,0.0,0.0);
 		glVertex3f(-1.0,0.0,0.0);
 	glEnd();
 	// y-axis
 	glBegin(GL_LINES);
-		glColor3f(0.0,1.0,0.0);
+		glColor3f(0.0,0.2,0.0);
 		glVertex3f(0.0,1.0,0.0);
 		glVertex3f(0.0,-1.0,0.0);
 	glEnd();
 	// z-axis
 	glBegin(GL_LINES);
-		glColor3f(0.0,0.0,1.0);
+		glColor3f(0.0,0.0,0.2);
 		glVertex3f(0.0,0.0,-1.0);
 		glVertex3f(0.0,0.0,1.0);
 	glEnd();
@@ -146,7 +174,7 @@ void display(void)
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();	
-	gluLookAt(camx, camy, camz,
+	gluLookAt(cam.x, cam.y, cam.z,
 				0.0, 0.0, 0.0,
 				0.0, 1.0, 0.0	);
 
@@ -154,10 +182,17 @@ void display(void)
 	// draw axis
 	drawAxis();
 
+	// draw level
+	// glPushMatrix();
+	// glScalef(0.5,0.5,0.5);
+	// glColor3f(0.5,0.5,0.0);
+	// drawLevelPlane();
+	// glPopMatrix();
+
 	// for example
-	glColor3f(1.0,0.0,1.0);
-	glLineWidth(5.0);
-	renderStrokeFontString(0.0,0.0,-1.0, 0.0005,0.0005,0.0005, "N");
+	// glColor3f(1.0,0.0,1.0);
+	// glLineWidth(5.0);
+	// renderStrokeFontString(0.0,0.0,-1.0, 0.0005,0.0005,0.0005, "N");
 
 	glutSwapBuffers();
 }
@@ -238,9 +273,9 @@ int main(int argc, char **argv)
     	cout << endl;
     }
 
-    camx = 1.0;
-	camy = 0.0;
-	camz = 1.0;
+    cam.x = 1.0;
+	cam.y = 0.0;
+	cam.z = 1.0;
 
     // start opengl
 	glutInit(&argc, argv);
