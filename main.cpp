@@ -35,6 +35,7 @@ public:
     string parent;	// parent name
     vector<string> relation;
     Point position;
+    int level;
     Node();
     Node(string, int);
 };
@@ -209,6 +210,7 @@ int main(int argc, char **argv)
 		graph = Graph();
 
 		string line;
+		int level=0;
 		while ( getline (myfile,line) ){
 			istringstream ss(line);
 			string sub;
@@ -228,6 +230,7 @@ int main(int argc, char **argv)
 				else {
 					graph.root = Node(subStrings[0], atoi(subStrings[1].c_str()));
 
+					graph.root.level = level++;
 					tobeParent.push_back(graph.root.name);
 
 					firstLine = false;
@@ -241,13 +244,16 @@ int main(int argc, char **argv)
 				}
 				if(subStrings.back().compare(".")==0 || subStrings.back().compare("{")==0){
 					n.parent = tobeParent.back();
+					n.level = level;
 					graph.nodeList.push_back(n);
 				}
 
 				if(subStrings.back().compare("{")==0){
+					level++;
 					tobeParent.push_back(n.name);
 				} 
 				else if(subStrings.back().compare("}")==0){
+					level--;
 					if(tobeParent.empty()){
 						tobeParent.push_back(graph.root.name);
 					} 
@@ -263,15 +269,17 @@ int main(int argc, char **argv)
     else cout << "Unable to open file";
 
     // DEBUGGING
-    cout << "name value parent relation"<<endl;
-    cout << graph.root.name << " " << graph.root.value << endl;
+    //<---->
+    cout << "name value parent level relation"<<endl;
+    cout << graph.root.name << " " << graph.root.value  << " " << graph.root.level << endl;
     for (unsigned i = 0; i < graph.nodeList.size(); i++)
     {
-    	cout << graph.nodeList[i].name << " " << graph.nodeList[i].value << " " << graph.nodeList[i].parent << " ";
+    	cout << graph.nodeList[i].name << " " << graph.nodeList[i].value << " " << graph.nodeList[i].parent << " " << graph.nodeList[i].level << " " ;
     	if(!graph.nodeList[i].relation.empty())
     		cout << graph.nodeList[i].relation[0];
     	cout << endl;
     }
+    //<---->
 
     cam.x = 1.0;
 	cam.y = 0.0;
@@ -282,7 +290,7 @@ int main(int argc, char **argv)
 	glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
 	glutInitWindowSize(1000, 600);
 	glutInitWindowPosition(50,50);
-	glutCreateWindow("Project");
+	//glutCreateWindow("Project");
 	init();
 	glutDisplayFunc(display);	
 	glutReshapeFunc(handleResize);
