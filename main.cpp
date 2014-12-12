@@ -4,6 +4,7 @@
 #include <iostream>		// cout
 #include <sstream>		// istringstream
 #include <vector>		// vector
+#include <stdio.h>		// printf
 
 using namespace std;
 
@@ -57,7 +58,9 @@ public:
 	vector<Node> nodeList;
 	Graph();
 	int getNumberOfLevels();
-	vector<Node> getNodesInLevel(int);
+	vector<string> getNodesInLevel(int);
+	void setNodeLocation(string, float, float, float);
+	Point getNodePosition(string);
 };
 
 Graph::Graph(){
@@ -72,13 +75,45 @@ int Graph::getNumberOfLevels(){
 	return max;
 }
 
-vector<Node> Graph::getNodesInLevel(int level){
-	vector<Node> result;
-	for (unsigned i = 0; i < nodeList.size(); i++){
+vector<string> Graph::getNodesInLevel(int level){
+	vector<string> result;
+	if(level == 0){
+		result.push_back(root.name);
+	}
+	else {
+		for (unsigned i = 0; i < nodeList.size(); i++){
 		if(nodeList[i].level == level)
-			result.push_back(nodeList[i]);
+			result.push_back(nodeList[i].name);
+		}
 	}
 	return result;
+}
+
+void Graph::setNodeLocation(string name, float x, float y, float z){
+	//cout << "x: " << x << " y: " << y << " z: " << z <<endl;
+	if(name.compare(root.name) == 0){
+		root.position = Point(x, y, z);
+		//cout << root.name  << " " <<  root.position.x <<  " " << root.position.y << " " << root.position.z << endl; 
+	}
+	else{
+		for (unsigned i = 0; i < nodeList.size(); i++){
+			if(nodeList[i].name.compare(name) == 0){
+				nodeList[i].position = Point(x, y, z);
+				//cout << nodeList[i].name << " " << nodeList[i].position.x << " " << nodeList[i].position.y << " " << nodeList[i].position.z << endl;			
+			}
+		}
+	}
+}
+
+Point Graph::getNodePosition(string nodeName){
+	Point p;
+	for(unsigned i = 0; i < nodeList.size(); i++) {
+		if(nodeList[i].name.compare(nodeName) == 0){
+			p = nodeList[i].position;
+		}
+	}
+	p = root.position;
+	return p;
 }
 
 
@@ -140,9 +175,9 @@ void specKeyFun(int key, int x, int y)
 void renderStrokeFontString(float x, float y, float z, float sx, float sy, float sz, char *string) {
 	char *c;
 	glPushMatrix();
-		glScalef(sx, sy, sz);
 		glRotatef(45, 0.0, 1.0, 0.0);
 		glTranslatef(x, y, z);
+		glScalef(sx, sy, sz);
 		//glRotatef(-30, 1.0, 0.0, 0.0);
 		for (c = string; *c != '\0'; c++) {
 			glutStrokeCharacter(GLUT_STROKE_ROMAN, *c);
@@ -153,6 +188,7 @@ void renderStrokeFontString(float x, float y, float z, float sx, float sy, float
 void drawLevelPlane()
 {
 	glBegin(GL_LINE_STRIP);
+	//glBegin(GL_QUADS);
 	glVertex3f(-0.5,0.5,-0.5);
 	glVertex3f(0.5,0.5,-0.5);
 	glVertex3f(0.5,0.5,0.5);
@@ -196,55 +232,44 @@ void display(void)
 
 
 	// draw axis
-	drawAxis();
+	//drawAxis();
 
-	// draw level
+	// draw each level
 	int levels = graph.getNumberOfLevels();
-	for (int i = 0; i < levels; i++){
-		float factor = (i*1.0 / levels*1.0);
+	float factor;
+	for (int i = 0; i < levels+1; i++){
+		factor = (i*1.0 / levels*1.0);
 
 		// draw base plane
 		glPushMatrix();
-			glColor3f(0.8,0.8,0.0);
-			glTranslatef(0, factor, 0);
+			glColor3f(0.2,0.2,0.0);
+			glTranslatef(0, -factor, 0);
 			glScalef(factor+0.5, factor+0.5, factor+0.5);
 			drawLevelPlane();
 		glPopMatrix();
 
 		// get nodes in this level
-		vector<Node> levelNodes = graph.getNodesInLevel(i);
+		vector<string> levelNodes = graph.getNodesInLevel(i);
 		// draw nodes
-		for (unsigned i = 0; i < levelNodes.size(); i++){
-			glPushMatrix();
-			levelNodes[i].position.x = -(factor * i * 1.0)-(i*i*i);
-			levelNodes[i].position.y = factor*levels;
-			levelNodes[i].position.z = -(factor * i * 1.0)-(i*i*i);
-			glColor3f(1.0, 1.0, 0.0);
+		glPushMatrix();
+		for (unsigned j = 0; j < levelNodes.size(); j++){
+			glColor3f(1.0,0.0,1.0);
+			graph.setNodeLocation(levelNodes[j], j*0.3, -factor+0.5, 0);
 			renderStrokeFontString(
-				levelNodes[i].position.x,
-				levelNodes[i].position.y,
-				levelNodes[i].position.z,
-				0.0005, 0.0005, 0.00005, 
-				&levelNodes[i].name[0]
+				j*0.3,
+			    -factor+0.5,
+				0,
+				0.0008,0.0008,0.0008, 
+				&levelNodes[j][0]
 			);
-			glPopMatrix();
+
+			// cout << levelNodes[j] << "  "; // debugging
 		}
-
-		//TODO draw links between children and parents
-
-		//TODO draw relations
+		// cout << endl; //debugging
+		glPopMatrix();
 	}
 
-	// glPushMatrix();
-	// glScalef(0.5,0.5,0.5);
-	// glColor3f(0.5,0.5,0.0);
-	// drawLevelPlane();
-	// glPopMatrix();
 
-	// for example
-	// glColor3f(1.0,0.0,1.0);
-	// glLineWidth(5.0);
-	// renderStrokeFontString(0.0,0.0,-1.0, 0.0005,0.0005,0.0005, "N");
 
 	glutSwapBuffers();
 }
@@ -333,12 +358,20 @@ int main(int argc, char **argv)
     	cout << endl;
     }
     cout << "levels: " << graph.getNumberOfLevels() << endl;
+
+    // 	    cout << endl;
+    // cout << "Positions" << endl;
+    // printf("%s %f %f %f\n", graph.root.name.c_str(), graph.root.position.x, graph.root.position.y, graph.root.position.z);
+    // for (unsigned i = 0; i < graph.nodeList.size(); i++)
+    // {
+    // 	printf("%s %f %f %f\n", graph.nodeList[i].name.c_str(), graph.nodeList[i].position.x, graph.nodeList[i].position.y,  graph.nodeList[i].position.z );
+    // }
     //<---->
 
     int levels = graph.getNumberOfLevels();
-    cam.x = levels - 0.7;
-	cam.y = levels - 0.7;
-	cam.z = levels - 0.7;
+    cam.x = levels;
+	cam.y = 0;
+	cam.z = levels+0.5;
 
     // start opengl
 	glutInit(&argc, argv);
@@ -347,7 +380,7 @@ int main(int argc, char **argv)
 	glutInitWindowPosition(50,50);
 	glutCreateWindow("Project");
 	init();
-	glutDisplayFunc(display);	
+	glutDisplayFunc(display);
 	glutReshapeFunc(handleResize);
 	glutSpecialFunc(specKeyFun);
 	glutMainLoop();
