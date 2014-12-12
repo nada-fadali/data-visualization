@@ -112,7 +112,9 @@ Point Graph::getNodePosition(string nodeName){
 			p = nodeList[i].position;
 		}
 	}
-	p = root.position;
+	if(root.name.compare(nodeName) == 0){
+		p = root.position;
+	}
 	return p;
 }
 
@@ -243,7 +245,7 @@ void display(void)
 
 		// draw base plane
 		glPushMatrix();
-			glColor3f(0.2,0.2,0.0);
+			glColor3f(0.2,0.0,0.2);
 			glTranslatef(0, -factor, 0);
 			glScalef(factor+0.5, factor+0.5, factor+0.5);
 			drawLevelPlane();
@@ -270,18 +272,19 @@ void display(void)
 	}
 
 	// draw edges between nodes
-	// glLineWidth(2.0);
-	// glPushMatrix();
-	// glRotatef(45.0,0.0,1.0,0.0);
-	// glColor3f(0.5, 0.5, 0.0);
-	// for (unsigned w = 0; w < graph.nodeList.size(); w++){
-	// 	Point p = graph.getNodePosition(graph.nodeList[w].parent);
-	// 	glBegin(GL_LINES);
-	// 		glVertex3f(p.x, p.y-0.2, p.z);
-	// 		glVertex3f(graph.nodeList[w].position.x, graph.nodeList[w].position.y, graph.nodeList[w].position.z);
-	// 	glEnd();
-	// }
-	// glPopMatrix();
+	glLineWidth(2.0);
+	glPushMatrix();
+	glRotatef(45.0,0.0,1.0,0.0);
+	glTranslatef(0.0, 0.1, 0.0);
+	glColor3f(0.5, 0.5, 0.0);
+	for (unsigned w = 0; w < graph.nodeList.size(); w++){
+		Point p = graph.getNodePosition(graph.nodeList[w].parent);
+		glBegin(GL_LINES);
+			glVertex3f(p.x, p.y-0.1, p.z);
+			glVertex3f(graph.nodeList[w].position.x, graph.nodeList[w].position.y, graph.nodeList[w].position.z);
+		glEnd();
+	}
+	glPopMatrix();
 
 
 	// cout << graph.root.name << " " << graph.root.position.x << " " << graph.root.position.y << " " << graph.root.position.z << endl;
